@@ -9,7 +9,7 @@ int main()
             << std::endl;
 
   // create window and set up
-  sf::RenderWindow window(sf::VideoMode(1080, 720), "Angry Birds!");
+  sf::RenderWindow window(sf::VideoMode(1280, 720), "Angry Birds!");
   window.setFramerateLimit(60);
 
   //initialise an instance of the game class
@@ -40,6 +40,20 @@ int main()
       // "close requested" event: we close the window
       if (event.type == sf::Event::Closed)
         window.close();
+
+      if (event.type == sf::Event::KeyPressed)
+      {
+        game.keyPressed(event);
+      }
+
+      if (event.type == sf::Event::MouseButtonPressed)
+      {
+        game.mouseClicked(event);
+      }
+      else if (event.type == sf::Event::MouseButtonReleased)
+      {
+        game.mouseReleased(event);
+      }
     }
 
 
