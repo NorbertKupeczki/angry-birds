@@ -13,8 +13,11 @@ class GameObject
 
   void setTexture(sf::Texture& texture);
   sf::Sprite* getSprite();
+  void setVisibility(bool value);
+  bool isVisible();
 
  protected:
+  bool visible;
   sf::Sprite* sprite = nullptr;
 };
 

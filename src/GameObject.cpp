@@ -3,6 +3,7 @@
 GameObject::GameObject()
 {
   sprite = new sf::Sprite;
+  visible = true;
 }
 
 GameObject::~GameObject()
@@ -18,4 +19,14 @@ void GameObject::setTexture(sf::Texture& texture)
 sf::Sprite* GameObject::getSprite()
 {
   return sprite;
+}
+
+void GameObject::setVisibility(bool value)
+{
+  visible = value;
+}
+
+bool GameObject::isVisible()
+{
+  return visible;
 }
