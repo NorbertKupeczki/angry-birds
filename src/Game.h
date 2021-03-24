@@ -8,6 +8,7 @@
 #include "Pig.h"
 #include "Slingshot.h"
 #include "Buttons.h"
+#include "Options.h"
 
 class Game
 {
@@ -24,8 +25,10 @@ class Game
  private:
   void loadTexture(sf::Sprite& sprite, sf::Texture& texture, std::string path);
   void loadTexture(sf::Texture& texture, std::string path);
+  void loadSound(sf::SoundBuffer& buffer, std::string path);
   void initTextures();
   void initButtons();
+  void initSounds();
   void setButtonPosition();
   void initPigs(int level);
   void checkButtons(sf::Vector2i mouse_pos);
@@ -41,6 +44,8 @@ class Game
 
   sf::Sprite background_spr;
   sf::Texture background_tex;
+  sf::Sprite pause_spr;
+  sf::Texture pause_tex;
   sf::Texture lvl1_tex;
   sf::Texture lvl2_tex;
   sf::Texture lvl3_tex;
@@ -51,6 +56,12 @@ class Game
   sf::Sprite bird_spr;
   sf::Texture bird_tex;
   sf::Texture pig_tex;
+
+  sf::SoundBuffer menu_hover_bfr;
+  sf::SoundBuffer menu_click_bfr;
+  sf::SoundBuffer slingshot_launch;
+  sf::SoundBuffer pig_squeek;
+  sf::Music background_music;
 
   enum GameState {
     MAIN_MENU = 0,
@@ -63,24 +74,28 @@ class Game
 
   GameState game_state;
   Slingshot slingshot;
-  Pig* pigs;
+  Options options;
+  Pig* pigs = nullptr;
 
-  Play play_button;
-  Help help_button;
-  Options options_button;
-  Menu menu_button;
-  Quit quit_button;
+  PlayButton play_button;
+  HelpButton help_button;
+  OptionsButton options_button;
+  MenuButton menu_button;
+  QuitButton quit_button;
 
   const int NUMBER_OF_PIGS = 3;
+  const float GRAVITY = 0.0011;
+  const float MAX_DIST = 120.0;
   int pigs_left;
+  float elapsed_time = 0;
 
   bool grabbed = false;
   bool launched = false;
-  sf::Vector2f start_pos = {250,450};
   Vector2 bird_vector = {0,0};
+  Vector2 bird_start = {0,0};
   float speed = 0.0;
-  float gravity = 0.007;
-  const float MAX_DIST = 150.0;
+
+
 
 };
 
