@@ -14,7 +14,7 @@ class Buttons
   void setTextures(std::string path);
   void setSounds(sf::SoundBuffer& hover_bfr, sf::SoundBuffer& click_bfr);
   sf::Sprite* getSprite();
-  void mouseOver(sf::Vector2i cursor);
+  virtual void mouseOver(sf::Vector2i cursor);
   bool activeBtn();
   void click();
   void setPosition (float x, float y);
@@ -26,7 +26,6 @@ class Buttons
   sf::Sound* button_hover = nullptr;
   sf::Sound* button_click = nullptr;
 
-  bool visible;
   bool active;
 };
 
@@ -50,28 +49,51 @@ class QuitButton : public Buttons
 {
 };
 
-class Lvl1Button : public Buttons
+class OptionsMenuButtons : public Buttons
+{
+ public:
+  virtual void mouseOver(sf::Vector2i cursor) override;
+  void switchTexture();
+  bool isSelected();
+
+ private:
+  bool selected = false;
+};
+
+class Lvl1Button : public OptionsMenuButtons
 {
 };
 
-class Lvl2Button : public Buttons
+class Lvl2Button : public OptionsMenuButtons
 {
 };
 
-class Lvl3Button : public Buttons
+class Lvl3Button : public OptionsMenuButtons
 {
 };
 
-class AcceptButton : public Buttons
+class AcceptButton : public OptionsMenuButtons
 {
 };
 
-class CancelButton : public Buttons
+class MusicButton : public OptionsMenuButtons
 {
 };
 
-class MusicButton : public Buttons
+class VolumeSlider : public OptionsMenuButtons
 {
+ public:
+  bool isGrabbed();
+  void grabSlider();
+  void releaseSlider();
+  void moveSlider(sf::RenderWindow& window);
+  virtual void mouseOver(sf::Vector2i cursor) override;
+
+  const int MIN_POS = 687;
+  const int MAX_POS = 839;
+
+ private:
+  bool grabbed = false;
 };
 
 #endif // ANGRYBIRDS_BUTTONS_H

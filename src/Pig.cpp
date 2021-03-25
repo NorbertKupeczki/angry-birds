@@ -3,6 +3,7 @@
 Pig::Pig()
 {
   pig_squeek = new sf::Sound;
+  sprite->setOrigin(25,22);
 }
 
 Pig::~Pig()

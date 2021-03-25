@@ -61,7 +61,6 @@ class Game
   sf::SoundBuffer menu_click_bfr;
   sf::SoundBuffer slingshot_launch;
   sf::SoundBuffer pig_squeek;
-  sf::Music background_music;
 
   enum GameState {
     MAIN_MENU = 0,
@@ -71,10 +70,11 @@ class Game
   };
 
   bool game_paused;
+  bool level_set;
 
   GameState game_state;
   Slingshot slingshot;
-  Options options;
+  Options options = Options(window);
   Pig* pigs = nullptr;
 
   PlayButton play_button;

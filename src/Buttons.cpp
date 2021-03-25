@@ -6,7 +6,6 @@ Buttons::Buttons()
   sprite = new sf::Sprite;
   button_hover = new sf::Sound;
   button_click = new sf::Sound;
-  visible = false;
   active = false;
 }
 
@@ -89,4 +88,91 @@ void Buttons::click()
 void Buttons::setPosition(float x, float y)
 {
   sprite->setPosition(x, y);
+}
+
+//---------------------------- Options menu buttons ----------------------------
+
+void OptionsMenuButtons::mouseOver(sf::Vector2i cursor)
+{
+  if (!active)
+  {
+    if (sprite->getGlobalBounds().contains(cursor.x, cursor.y))
+    {
+      active = true;
+      button_hover->play();
+    }
+  }
+  else
+  {
+    if (!sprite->getGlobalBounds().contains(cursor.x, cursor.y))
+    {
+      active = false;
+    }
+  }
+}
+
+void OptionsMenuButtons::switchTexture()
+{
+  if (selected)
+  {
+    sprite->setTexture(inactive_texture);
+  }
+  else if (!selected)
+  {
+    sprite->setTexture(active_texture);
+  }
+  selected = !selected;
+}
+
+bool OptionsMenuButtons::isSelected()
+{
+  return selected;
+}
+
+//------------------------------- Volume slider -------------------------------
+
+bool VolumeSlider::isGrabbed()
+{
+  return grabbed;
+}
+
+void VolumeSlider::grabSlider()
+{
+  grabbed = true;
+}
+
+void VolumeSlider::releaseSlider()
+{
+  grabbed = false;
+}
+
+void VolumeSlider::moveSlider(sf::RenderWindow& window)
+{
+  setPosition(sf::Mouse::getPosition(window).x, sprite->getPosition().y);
+  if (sprite->getPosition().x < MIN_POS)
+  {
+    sprite->setPosition(MIN_POS, sprite->getPosition().y);
+  }
+  else if (sprite->getPosition().x > MAX_POS)
+  {
+    sprite->setPosition(MAX_POS, sprite->getPosition().y);
+  }
+}
+
+void VolumeSlider::mouseOver(sf::Vector2i cursor)
+{
+  if (!active)
+  {
+    if (sprite->getGlobalBounds().contains(cursor.x, cursor.y))
+    {
+      active = true;
+    }
+  }
+  else
+  {
+    if (!sprite->getGlobalBounds().contains(cursor.x, cursor.y))
+    {
+      active = false;
+    }
+  }
 }

@@ -1,4 +1,3 @@
-
 #include "Game.h"
 #include <iostream>
 #include <cmath>
@@ -9,6 +8,7 @@ Game::Game(sf::RenderWindow& game_window)
   srand(time(NULL));
   game_state = MAIN_MENU;
   game_paused = false;
+  level_set = false;
   pigs = new Pig[NUMBER_OF_PIGS];
   pigs_left = NUMBER_OF_PIGS;
 }
@@ -24,12 +24,10 @@ bool Game::init()
   initButtons();
   initSounds();
   setButtonPosition();
-  background_music.play();
 
   bird_spr.setOrigin(bird_tex.getSize().x/2, bird_tex.getSize().y/2);
   bird_spr.setPosition(slingshot.getLaunchPos());
 
-  initPigs(options.levelSelected());
   return true;
 }
 
@@ -39,11 +37,27 @@ void Game::update(float dt)
       game_state == GAME_WON ||
       game_state == GAME_LOST)
   {
-    checkButtons(sf::Mouse::getPosition(window));
+    if (!options.isOptionsActive())
+    {
+      checkButtons(sf::Mouse::getPosition(window));
+    }
+    else if (options.isOptionsActive())
+    {
+      options.checkButtons(sf::Mouse::getPosition(window));
+      if (options.isSliderGrabbed())
+      {
+        options.moveSlider(window);
+      }
+    }
   }
 
   else if (game_state == IN_GAME && !game_paused)
   {
+    if (!level_set)
+    {
+      initPigs(options.levelSelected());
+      level_set = true;
+    }
     moveBird(dt, slingshot.getLaunchPos());
 
     if (bird_spr.getPosition().x - bird_spr.getGlobalBounds().width/2 > window.getSize().x ||
@@ -55,8 +69,7 @@ void Game::update(float dt)
 
     for (int i = 0; i < NUMBER_OF_PIGS; ++i)
     {
-      if (bird_spr.getGlobalBounds().intersects(pigs[i].getSprite()->getGlobalBounds()) &&
-          pigs[i].isVisible())
+      if (getDistance(bird_spr.getPosition(),pigs[i].getSprite()->getPosition()) < 44.0 && pigs[i].isVisible())
       {
         pigs[i].setVisibility(false);
         pigs[i].squeek();
@@ -73,8 +86,6 @@ void Game::update(float dt)
       setButtonPosition();
     }
   }
-
-
 }
 
 void Game::render()
@@ -83,7 +94,14 @@ void Game::render()
 
   if (game_state == MAIN_MENU)
   {
-    drawButtons();
+    if (!options.isOptionsActive())
+    {
+      drawButtons();
+    }
+    else if (options.isOptionsActive())
+    {
+      options.renderOptions(window);
+    }
   }
   else if (game_state == IN_GAME)
   {
@@ -114,17 +132,18 @@ void Game::mouseClicked(sf::Event event)
 {
   if (event.mouseButton.button == sf::Mouse::Left)
   {
-    if (game_state == MAIN_MENU)
+    if (game_state == MAIN_MENU &&
+        !options.isOptionsActive())
     {
       if (play_button.activeBtn())
       {
         game_state = IN_GAME;
         play_button.click();
-        background_spr.setTexture(lvl1_tex);
       }
       else if (options_button.activeBtn())
       {
         options_button.click();
+        options.enterOptionsMenu();
       }
       else if (help_button.activeBtn())
       {
@@ -135,6 +154,11 @@ void Game::mouseClicked(sf::Event event)
         quit_button.click();
         window.close();
       }
+    }
+    else if (game_state == MAIN_MENU &&
+             options.isOptionsActive())
+    {
+      options.mouseClicked(event);
     }
     else if (game_state == IN_GAME)
     {
@@ -163,14 +187,23 @@ void Game::mouseClicked(sf::Event event)
 
 void Game::mouseReleased(sf::Event event)
 {
-  if (event.mouseButton.button == sf::Mouse::Left && game_state == IN_GAME)
+  if (event.mouseButton.button == sf::Mouse::Left &&
+      game_state == IN_GAME)
   {
-    if (grabbed)
+    if (!options.isOptionsActive())
     {
-      grabbed = false;
-      slingshot.launch();
-      launchBird();
+      if (grabbed)
+      {
+        grabbed = false;
+        slingshot.launch();
+        launchBird();
+      }
     }
+  }
+  else if (event.mouseButton.button == sf::Mouse::Left &&
+           options.isOptionsActive())
+  {
+    options.mouseReleased(event);
   }
 }
 
@@ -255,10 +288,6 @@ void Game::initButtons()
 
 void Game::initSounds()
 {
-  background_music.openFromFile("Data/Audio/bg_music.ogg");
-  background_music.setVolume(options.getMusicVolume());
-  background_music.setLoop(true);
-
   loadSound(menu_hover_bfr, "Data/Audio/menu_hover.ogg");
   loadSound(menu_click_bfr, "Data/Audio/menu_click.ogg");
   loadSound(slingshot_launch, "Data/Audio/slingshot_launch.ogg");
@@ -269,6 +298,8 @@ void Game::initSounds()
   menu_button.setSounds(menu_hover_bfr, menu_click_bfr);
   help_button.setSounds(menu_hover_bfr, menu_click_bfr);
   quit_button.setSounds(menu_hover_bfr, menu_click_bfr);
+
+  options.initButtons(menu_hover_bfr, menu_click_bfr, window);
 
   slingshot.setSound(slingshot_launch);
   for (int i = 0; i < NUMBER_OF_PIGS; ++i)
@@ -301,6 +332,19 @@ void Game::setButtonPosition()
 
 void Game::initPigs(int level)
 {
+  if (level == 1)
+  {
+    background_spr.setTexture(lvl1_tex);
+  }
+  else if (level == 2)
+  {
+    background_spr.setTexture(lvl2_tex);
+  }
+  else if (level == 3)
+  {
+    background_spr.setTexture(lvl3_tex);
+  }
+
   for (int i = 0; i < NUMBER_OF_PIGS; ++i)
   {
     pigs[i].setTexture(pig_tex);
@@ -309,6 +353,19 @@ void Game::initPigs(int level)
       pigs[i].getSprite()->setPosition(
         window.getSize().x * 0.65 + i * 150,
         window.getSize().y * 0.75);
+    }
+    else if (level == 2)
+    {
+      pigs[i].getSprite()->setPosition(
+        window.getSize().x * 0.9,
+        window.getSize().y * 0.2 * (i+1));
+    }
+    else if (level == 3)
+    {
+      pigs[i].getSprite()->setPosition(
+        window.getSize().x * 0.65 + i * 150,
+        0.0017 * pow((window.getSize().x * 0.65 + i * 150) - window.getSize().x/2,2));
+      std::cout << pigs[i].getSprite()->getPosition().x <<" / " << pigs[i].getSprite()->getPosition().y << "\n";
     }
   }
 }
@@ -409,6 +466,7 @@ void Game::resetGame()
   game_state = MAIN_MENU;
   grabbed = false;
   launched = false;
+  level_set = false;
   setButtonPosition();
   bird_spr.setPosition(slingshot.getLaunchPos());
   background_spr.setTexture(background_tex);
