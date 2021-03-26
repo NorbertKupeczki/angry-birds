@@ -9,6 +9,7 @@
 #include "Slingshot.h"
 #include "Buttons.h"
 #include "Options.h"
+#include "LevelManager.h"
 
 class Game
 {
@@ -30,12 +31,16 @@ class Game
   void initButtons();
   void initSounds();
   void setButtonPosition();
-  void initPigs(int level);
+  void initLevel(int level);
+  void updateMenus();
+  void updateInGame(float dt);
   void checkButtons(sf::Vector2i mouse_pos);
   float getDistance(sf::Vector2<float> vector1,
                     sf::Vector2<float> vector2);
   void moveBird(float dt, sf::Vector2f start_pos);
   void launchBird();
+  void collisionCheck();
+  void checkEndOfGameConditions();
   void drawPigs();
   void drawButtons();
   void resetGame();
@@ -75,6 +80,7 @@ class Game
   GameState game_state;
   Slingshot slingshot;
   Options options = Options(window);
+  LevelManager level_manager;
   Pig* pigs = nullptr;
 
   PlayButton play_button;
