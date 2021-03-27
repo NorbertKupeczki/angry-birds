@@ -10,6 +10,11 @@ void Obstacles::destroyObstacle()
   visible = false;
 }
 
+bool Obstacles::isDestructible()
+{
+    return destructible;
+}
+
 MetalObstacle::MetalObstacle()
 {
   destructible = false;

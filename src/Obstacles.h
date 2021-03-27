@@ -9,6 +9,7 @@ class Obstacles : public GameObject
   Obstacles();
 
   void destroyObstacle();
+  bool isDestructible();
 
  protected:
   bool destructible;

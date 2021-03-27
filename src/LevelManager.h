@@ -20,6 +20,8 @@ class LevelManager
 
   void createObstacles(int level, sf::RenderWindow& window);
   void deleteObstacles();
+  bool collisionCheck(sf::Sprite& bird);
+  bool checkObstacles(Obstacles* obstacles, sf::Sprite& bird, int array_size);
   void renderObstacles(sf::RenderWindow& window);
 
  private:
@@ -32,6 +34,10 @@ class LevelManager
   MetalObstacle* metal_obstacle = nullptr;
   StoneObstacle* stone_obstacle = nullptr;
   WoodObstacle* wood_obstacle = nullptr;
+
+  int number_of_metals = 0;
+  int number_of_stones = 0;
+  int number_of_woods = 0;
 
   sf::Texture metal_tex;
   sf::Texture wood_tex;

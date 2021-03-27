@@ -415,6 +415,11 @@ void Game::collisionCheck()
       launched = false;
       pigs_left -= 1;
     }
+    if (level_manager.collisionCheck(bird_spr))
+    {
+      bird_spr.setPosition(slingshot.getLaunchPos());
+      launched = false;
+    }
   }
 }
 
