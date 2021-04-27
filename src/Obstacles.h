@@ -31,4 +31,14 @@ class WoodObstacle : public Obstacles
 
 };
 
+class Boulder : public Obstacles
+{
+ public:
+  Boulder();
+  void MoveBoulder(float dt);
+
+ private:
+  float speed;
+};
+
 #endif // ANGRYBIRDS_OBSTACLES_H

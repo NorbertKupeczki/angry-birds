@@ -7,6 +7,11 @@ LevelManager::LevelManager()
   loadTexture(wood_tex, "Data/Images/Obstacles/obst_wood.png");
   loadTexture(stone_tex, "Data/Images/Obstacles/obst_stone.png");
   loadTexture(metal_tex, "Data/Images/Obstacles/obst_metal.png");
+  loadTexture(boulder_tex, "Data/Images/Obstacles/rock.png");
+
+  boulder.setTexture(boulder_tex);
+  boulder.setVisibility(false);
+  boulder.getSprite()->setPosition(1110.0,15.0);
 }
 
 LevelManager::~LevelManager()
@@ -69,6 +74,9 @@ void LevelManager::createObstacles(int level, sf::RenderWindow& window)
     number_of_metals = 9;
     number_of_woods = 1;
 
+    boulder.setVisibility(true);
+    boulder.getSprite()->setPosition(1110.0,15.0);
+
     metal_obstacle = new MetalObstacle[number_of_metals];
     wood_obstacle = new WoodObstacle[number_of_woods];
 
@@ -102,10 +110,14 @@ void LevelManager::createObstacles(int level, sf::RenderWindow& window)
     wood_obstacle[0].setTexture(wood_tex);
     wood_obstacle[0].getSprite()->setOrigin(wood_tex.getSize().x / 2,
                                             wood_tex.getSize().y /2);
-    wood_obstacle[0].getSprite()->setScale(1.3,1.0);
+    wood_obstacle[0].getSprite()->setScale(1.55,1.0);
     wood_obstacle[0].getSprite()->setPosition(
-      window.getSize().x * 0.95 - wood_tex.getSize().x + wood_tex.getSize().y * 0.5,
+      window.getSize().x * 0.94 - wood_tex.getSize().x + wood_tex.getSize().y * 0.5,
       window.getSize().y * 0.25 - wood_tex.getSize().x + wood_tex.getSize().y);
+  }
+  else if (level == 3)
+  {
+
   }
 }
 
@@ -127,25 +139,28 @@ void LevelManager::deleteObstacles()
     wood_obstacle = nullptr;
   }
 
+  boulder.setVisibility(false);
+
   number_of_metals = 0;
   number_of_stones = 0;
   number_of_woods = 0;
 }
 
-bool LevelManager::collisionCheck(sf::Sprite& bird)
+bool LevelManager::collisionCheck(sf::Sprite& bird, bool destruction)
 {
   bool collision;
 
-  collision = checkObstacles(metal_obstacle, bird, number_of_metals) ||
-              checkObstacles(stone_obstacle, bird, number_of_stones) ||
-              checkObstacles(wood_obstacle, bird, number_of_woods);
+  collision = checkObstacles(metal_obstacle, bird, number_of_metals, destruction) ||
+              checkObstacles(stone_obstacle, bird, number_of_stones, destruction) ||
+              checkObstacles(wood_obstacle, bird, number_of_woods, destruction);
 
   return collision;
 }
 
 bool LevelManager::checkObstacles(Obstacles* obstacles,
                                   sf::Sprite& bird,
-                                  int array_size)
+                                  int array_size,
+                                  bool destruction)
 {
   bool collision = false;
   if (obstacles != nullptr)
@@ -157,7 +172,7 @@ bool LevelManager::checkObstacles(Obstacles* obstacles,
         obstacles[i].isVisible())
       {
         collision = true;
-        if (obstacles[i].isDestructible())
+        if (obstacles[i].isDestructible() && destruction)
         {
           obstacles[i].destroyObstacle();
         }
@@ -169,6 +184,11 @@ bool LevelManager::checkObstacles(Obstacles* obstacles,
 
 void LevelManager::renderObstacles(sf::RenderWindow& window)
 {
+  if (boulder.isVisible())
+  {
+    window.draw(*boulder.getSprite());
+  }
+
   if (metal_obstacle != nullptr)
   {
     for (int i = 0; i < number_of_metals; ++i)
@@ -199,6 +219,16 @@ void LevelManager::renderObstacles(sf::RenderWindow& window)
       }
     }
   }
+}
+
+sf::Sprite * LevelManager::getBoulder()
+{
+    return boulder.getSprite();
+}
+
+void LevelManager::moveBoulder(float dt)
+{
+  boulder.MoveBoulder(dt);
 }
 
 // ---------------------------------- PRIVATE ----------------------------------

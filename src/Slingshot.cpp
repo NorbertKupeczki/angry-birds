@@ -8,6 +8,8 @@ Slingshot::Slingshot()
   setPosition(200.0,420.0);
   initTrajectory();
   slingshot_launch = new sf::Sound;
+  score = 0;
+  lives = MAX_LIVES;
 }
 
 Slingshot::~Slingshot()
@@ -68,6 +70,39 @@ void Slingshot::trajectory(sf::Vector2f origin, float GRAVITY)
     circles[i].setPosition(v.x * spd * (i+1) * 0.33 + origin.x,
                            v.y * spd * (i+1) * 0.33 + 0.5 * GRAVITY * pow(i * 20,2) + origin.y);
   }
+}
+
+void Slingshot::setLives(int value)
+{
+  lives = value;
+}
+
+void Slingshot::loseLife()
+{
+  if (lives > 0)
+  {
+    lives--;
+  }
+}
+
+int Slingshot::getLives()
+{
+  return lives;
+}
+
+void Slingshot::addScore(int value)
+{
+  score += value;
+}
+
+void Slingshot::resetScore()
+{
+  score = 0;
+}
+
+int Slingshot::getScore()
+{
+  return score;
 }
 
 void Slingshot::initTrajectory()

@@ -9,7 +9,9 @@ Game::Game(sf::RenderWindow& game_window)
   game_state = MAIN_MENU;
   game_paused = false;
   level_set = false;
+  help_open = false;
   pigs = new Pig[NUMBER_OF_PIGS];
+  lives = new Birds[slingshot.MAX_LIVES];
   pigs_left = NUMBER_OF_PIGS;
 }
 
@@ -23,10 +25,18 @@ bool Game::init()
   initTextures();
   initButtons();
   initSounds();
+  initFont();
   setButtonPosition();
 
-  bird_spr.setOrigin(bird_tex.getSize().x/2, bird_tex.getSize().y/2);
-  bird_spr.setPosition(slingshot.getLaunchPos());
+  bird.getSprite()->setOrigin(bird_tex.getSize().x/2, bird_tex.getSize().y/2);
+  bird.getSprite()->setPosition(slingshot.getLaunchPos());
+
+  for (int i = 0; i < slingshot.MAX_LIVES;++i)
+  {
+    lives[i].setTexture(bird_tex);
+    lives[i].getSprite()->setPosition(10.0 + i * bird_tex.getSize().y * 1.1,
+                                      window.getSize().y - bird_tex.getSize().y * 1.5);
+  }
 
   return true;
 }
@@ -45,7 +55,14 @@ void Game::render()
   {
     if (!options.isOptionsActive())
     {
-      drawButtons();
+      if (!help_open)
+      {
+        drawButtons();
+      }
+      else if (help_open)
+      {
+        window.draw(help_menu_spr);
+      }
     }
     else if (options.isOptionsActive())
     {
@@ -55,11 +72,12 @@ void Game::render()
   else if (game_state == IN_GAME)
   {
     window.draw(*slingshot.getSprite());
-    window.draw(bird_spr);
+    window.draw(*bird.getSprite());
     window.draw(*slingshot.getSpriteLeft());
     level_manager.renderObstacles(window);
+    drawLives(slingshot.getLives());
     drawPigs();
-    if (grabbed || launched)
+    if (bird.isGrabbed() || bird.isLaunched())
     {
       slingshot.drawTrajectory(window);
     }
@@ -67,14 +85,17 @@ void Game::render()
     {
       window.draw(pause_spr);
     }
+    window.draw(score_text);
   }
   else if (game_state == GAME_WON)
   {
     drawButtons();
+    window.draw(score_endlevel);
   }
   else if (game_state == GAME_LOST)
   {
     drawButtons();
+    window.draw(score_endlevel);
   }
 }
 
@@ -85,24 +106,32 @@ void Game::mouseClicked(sf::Event event)
     if (game_state == MAIN_MENU &&
         !options.isOptionsActive())
     {
-      if (play_button.activeBtn())
+      if (!help_open)
       {
-        game_state = IN_GAME;
-        play_button.click();
+        if (play_button.activeBtn())
+        {
+          game_state = IN_GAME;
+          play_button.click();
+        }
+        else if (options_button.activeBtn())
+        {
+          options_button.click();
+          options.enterOptionsMenu();
+        }
+        else if (help_button.activeBtn())
+        {
+          help_button.click();
+          help_open = true;
+        }
+        else if (quit_button.activeBtn())
+        {
+          quit_button.click();
+          window.close();
+        }
       }
-      else if (options_button.activeBtn())
+      else if (help_open)
       {
-        options_button.click();
-        options.enterOptionsMenu();
-      }
-      else if (help_button.activeBtn())
-      {
-        help_button.click();
-      }
-      else if (quit_button.activeBtn())
-      {
-        quit_button.click();
-        window.close();
+        help_open = false;
       }
     }
     else if (game_state == MAIN_MENU &&
@@ -113,9 +142,9 @@ void Game::mouseClicked(sf::Event event)
     else if (game_state == IN_GAME)
     {
       sf::Vector2i click = sf::Mouse::getPosition(window);
-      if (bird_spr.getGlobalBounds().contains(click.x, click.y) && !launched)
+      if (bird.getSprite()->getGlobalBounds().contains(click.x, click.y) && !bird.isLaunched())
       {
-        grabbed = true;
+        bird.setGrabbed(true);
       }
     }
     else if (game_state == GAME_WON ||
@@ -142,9 +171,9 @@ void Game::mouseReleased(sf::Event event)
   {
     if (!options.isOptionsActive())
     {
-      if (grabbed)
+      if (bird.isGrabbed())
       {
-        grabbed = false;
+        bird.setGrabbed(false);
         slingshot.launch();
         launchBird();
       }
@@ -208,19 +237,26 @@ void Game::initTextures()
 {
   loadTexture(background_spr, background_tex, "Data/Images/Backgrounds/menu.jpg");
   loadTexture(pause_spr, pause_tex, "Data/Images/Backgrounds/pause_menu.png");
+  loadTexture(help_menu_spr, help_menu_tex, "Data/Images/Backgrounds/help_menu.png");
   loadTexture(lvl1_tex, "Data/Images/Backgrounds/lvl1.png");
   loadTexture(lvl2_tex, "Data/Images/Backgrounds/lvl2.png");
   loadTexture(lvl3_tex, "Data/Images/Backgrounds/lvl3.png");
   loadTexture(game_won_tex, "Data/Images/Backgrounds/game_won.png");
+  loadTexture(game_lost_tex, "Data/Images/Backgrounds/game_lost.png");
   loadTexture(sling_full_tex, "Data/Images/Objects/slingshot_full.png");
   loadTexture(sling_left_tex, "Data/Images/Objects/slingshot_leftbranch.png");
-  loadTexture(bird_spr, bird_tex, "Data/Images/Objects/parrot.png");
+  loadTexture(bird_tex, "Data/Images/Objects/parrot.png");
   loadTexture(pig_tex, "Data/Images/Objects/pig.png");
 
   pause_spr.setOrigin(pause_tex.getSize().x / 2, pause_tex.getSize().y / 2);
   pause_spr.setPosition(window.getSize().x / 2, window.getSize().y / 2);
 
+  help_menu_spr.setOrigin(help_menu_tex.getSize().x / 2, help_menu_tex.getSize().y / 2);
+  help_menu_spr.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+
   slingshot.setTexture(sling_full_tex, sling_left_tex);
+
+  bird.setTexture(bird_tex);
 }
 
 void Game::initButtons()
@@ -257,6 +293,43 @@ void Game::initSounds()
   {
     pigs[i].setSound(pig_squeek);
   }
+}
+
+void Game::initFont()
+{
+  if (!font.loadFromFile("Data/Fonts/angrybirds.ttf"))
+  {
+    std::cout << "font did not load \n";
+  }
+
+  score_text.setFont(font);
+  score_text.setPosition(10.0, 10.0);
+  score_text.setCharacterSize(35);
+  score_text.setFillColor(sf::Color().White);
+  score_text.setOutlineColor(sf::Color().Black);
+  score_text.setOutlineThickness(2);
+  score_text.setString("Score: " + std::to_string(slingshot.getScore()));
+
+  score_endlevel.setFont(font);
+  score_endlevel.setCharacterSize(70);
+  score_endlevel.setFillColor(sf::Color().White);
+  score_endlevel.setOutlineColor(sf::Color().Black);
+  score_endlevel.setOutlineThickness(3);
+  score_endlevel.setString(
+    "Your score: " + std::to_string(slingshot.getScore()));
+  score_endlevel.setPosition(
+    window.getSize().x * 0.5 - score_endlevel.getGlobalBounds().width * 0.5,
+    window.getSize().y * 0.55 - score_endlevel.getGlobalBounds().height * 0.5);
+}
+
+void Game::updateText()
+{
+  score_text.setString("Score: " + std::to_string(slingshot.getScore()));
+  score_endlevel.setString(
+    "Your score: " + std::to_string(slingshot.getScore()));
+  score_endlevel.setPosition(
+    window.getSize().x * 0.5 - score_endlevel.getGlobalBounds().width * 0.5,
+    window.getSize().y * 0.55 - score_endlevel.getGlobalBounds().height * 0.5);
 }
 
 void Game::setButtonPosition()
@@ -326,16 +399,25 @@ void Game::updateInGame(float dt)
       initLevel(options.levelSelected());
       level_set = true;
     }
+
     moveBird(dt, slingshot.getLaunchPos());
 
-    if (bird_spr.getPosition().x - bird_spr.getGlobalBounds().width/2 > window.getSize().x ||
-        bird_spr.getPosition().y - bird_spr.getGlobalBounds().height/2 > window.getSize().y)
+    if (!level_manager.collisionCheck(*level_manager.getBoulder(), false))
     {
-      bird_spr.setPosition(slingshot.getLaunchPos());
-      launched = false;
+      level_manager.moveBoulder(dt);
+    }
+
+    if (
+      bird.getSprite()->getPosition().x -
+          bird.getSprite()->getGlobalBounds().width / 2 > window.getSize().x ||
+      bird.getSprite()->getPosition().y -
+          bird.getSprite()->getGlobalBounds().height / 2 > window.getSize().y)
+    {
+      resetBird();
     }
 
     collisionCheck();
+    updateText();
     checkEndOfGameConditions();
   }
 }
@@ -360,46 +442,47 @@ float Game::getDistance(sf::Vector2<float> vector1,
 
 void Game::moveBird(float dt, sf::Vector2f start_pos)
 {
-  if (grabbed)
+  if (bird.isGrabbed())
   {
-    bird_spr.setPosition(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y);
+    bird.getSprite()->setPosition(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y);
 
-    float dist = getDistance(bird_spr.getPosition(), start_pos);
-    float x_dist = start_pos.x - bird_spr.getPosition().x;
-    float y_dist = start_pos.y - bird_spr.getPosition().y;
+    float dist = getDistance(bird.getSprite()->getPosition(), start_pos);
+    float x_dist = start_pos.x - bird.getSprite()->getPosition().x;
+    float y_dist = start_pos.y - bird.getSprite()->getPosition().y;
     Vector2 vect = {x_dist, y_dist};
     vect.normalise();
     vect = vect * MAX_DIST;
     if (dist > MAX_DIST)
     {
-      bird_spr.setPosition(start_pos.x - vect.x, start_pos.y - vect.y);
+      bird.getSprite()->setPosition(start_pos.x - vect.x, start_pos.y - vect.y);
     }
-    if (bird_spr.getPosition().x > start_pos.x)
+    if (bird.getSprite()->getPosition().x > start_pos.x)
     {
-      bird_spr.setPosition(start_pos.x, bird_spr.getPosition().y);
+      bird.getSprite()->setPosition(start_pos.x, bird.getSprite()->getPosition().y);
     }
-    if (bird_spr.getPosition().y < start_pos.y)
+    if (bird.getSprite()->getPosition().y < start_pos.y)
     {
-      bird_spr.setPosition(bird_spr.getPosition().x, start_pos.y);
+      bird.getSprite()->setPosition(bird.getSprite()->getPosition().x, start_pos.y);
     }
-    slingshot.trajectory(bird_spr.getPosition(), GRAVITY);
+    slingshot.trajectory(bird.getSprite()->getPosition(), GRAVITY);
   }
-  else if (launched)
+  else if (bird.isLaunched())
   {
-    bird_spr.setPosition(bird_vector.x * speed * elapsed_time + bird_start.x,
-                         bird_vector.y * speed * elapsed_time + 60 * pow(elapsed_time,2) +bird_start.y);
+    bird.getSprite()->setPosition(bird.getVector().x * bird.getSpeed() * elapsed_time + bird.getStart().x,
+                                  bird.getVector().y * bird.getSpeed() * elapsed_time + 60 * pow(elapsed_time,2) +bird.getStart().y);
     elapsed_time += dt;
   }
 }
 
 void Game::launchBird()
 {
-  speed = getDistance(bird_spr.getPosition(), slingshot.getLaunchPos()) * 6;
-  bird_vector.x = slingshot.getLaunchPos().x - bird_spr.getPosition().x;
-  bird_vector.y = slingshot.getLaunchPos().y - bird_spr.getPosition().y;
-  bird_vector.normalise();
-  bird_start = {bird_spr.getPosition().x, bird_spr.getPosition().y};
-  launched = true;
+  bird.setSpeed(getDistance(bird.getSprite()->getPosition(),
+                                  slingshot.getLaunchPos()) * 6);
+  bird.setVector({slingshot.getLaunchPos().x - bird.getSprite()->getPosition().x,
+      slingshot.getLaunchPos().y - bird.getSprite()->getPosition().y });
+  bird.normaliseVector();
+  bird.setStart({ bird.getSprite()->getPosition().x, bird.getSprite()->getPosition().y });
+  bird.setLaunched(true);
   elapsed_time = 0;
 }
 
@@ -407,18 +490,30 @@ void Game::collisionCheck()
 {
   for (int i = 0; i < NUMBER_OF_PIGS; ++i)
   {
-    if (getDistance(bird_spr.getPosition(),pigs[i].getSprite()->getPosition()) <= 40.0 && pigs[i].isVisible())
+    if (
+      getDistance(
+        bird.getSprite()->getPosition(), pigs[i].getSprite()->getPosition()) <=
+        40.0 && pigs[i].isVisible())
     {
       pigs[i].setVisibility(false);
       pigs[i].squeek();
-      bird_spr.setPosition(slingshot.getLaunchPos());
-      launched = false;
+      slingshot.addScore(pigs[i].getValue());
+      resetBird();
       pigs_left -= 1;
     }
-    if (level_manager.collisionCheck(bird_spr))
+    if (
+      level_manager.getBoulder()->getGlobalBounds().intersects(
+        pigs[i].getSprite()->getGlobalBounds()) &&
+      pigs[i].isVisible())
     {
-      bird_spr.setPosition(slingshot.getLaunchPos());
-      launched = false;
+      pigs[i].setVisibility(false);
+      pigs[i].squeek();
+      slingshot.addScore(pigs[i].getValue());
+      pigs_left -= 1;
+    }
+    if (level_manager.collisionCheck(*bird.getSprite(), true))
+    {
+      resetBird();
     }
   }
 }
@@ -429,6 +524,14 @@ void Game::checkEndOfGameConditions()
   {
     game_state = GAME_WON;
     background_spr.setTexture(game_won_tex);
+    slingshot.addScore(slingshot.getLives() * 1000);
+    updateText();
+    setButtonPosition();
+  }
+  else if (slingshot.getLives() <= 0)
+  {
+    game_state = GAME_LOST;
+    background_spr.setTexture(game_lost_tex);
     setButtonPosition();
   }
 }
@@ -453,22 +556,44 @@ void Game::drawButtons()
     window.draw(*help_button.getSprite());
     window.draw(*quit_button.getSprite());
   }
-  else if (game_state == GAME_WON)
+  else if (game_state == GAME_WON ||
+           game_state == GAME_LOST)
   {
     window.draw(*menu_button.getSprite());
     window.draw(*quit_button.getSprite());
   }
 }
 
+void Game::drawLives(int lives_left)
+{
+  if (lives_left > 1)
+  {
+    for (int i = 0; i < lives_left - 1; ++i)
+    {
+      window.draw(*lives[i].getSprite());
+    }
+  }
+}
+
+void Game::resetBird()
+{
+  bird.getSprite()->setPosition(slingshot.getLaunchPos());
+  slingshot.loseLife();
+  bird.setLaunched(false);
+}
+
 void Game::resetGame()
 {
   pigs_left = NUMBER_OF_PIGS;
   game_state = MAIN_MENU;
-  grabbed = false;
-  launched = false;
+  slingshot.setLives(slingshot.MAX_LIVES);
+  slingshot.resetScore();
+  updateText();
+  bird.setGrabbed(false);
+  bird.setLaunched(false);
   level_set = false;
   setButtonPosition();
-  bird_spr.setPosition(slingshot.getLaunchPos());
+  bird.getSprite()->setPosition(slingshot.getLaunchPos());
   background_spr.setTexture(background_tex);
   level_manager.deleteObstacles();
   for (int i = 0; i < NUMBER_OF_PIGS; ++i)

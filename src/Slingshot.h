@@ -19,7 +19,20 @@ class Slingshot : public GameObject
   void drawTrajectory(sf::RenderWindow& window);
   void trajectory(sf::Vector2f origin, float GRAVITY);
 
+  void setLives(int value);
+  void loseLife();
+  int getLives();
+
+  void addScore(int value);
+  void resetScore();
+  int getScore();
+
+  const int MAX_LIVES = 6;
+
  private:
+  int score;
+  int lives;
+
   void initTrajectory();
   float getDistance(sf::Vector2<float> vector1,
                     sf::Vector2<float> vector2);

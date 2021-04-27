@@ -11,7 +11,10 @@ class Pig : public GameObject
   void setSound(sf::SoundBuffer& buffer);
   void squeek();
 
+  int getValue();
+
  private:
+  int value;
   sf::Sound* pig_squeek = nullptr;
 };
 

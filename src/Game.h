@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Vector2.h"
+#include "Birds.h"
 #include "Pig.h"
 #include "Slingshot.h"
 #include "Buttons.h"
@@ -30,6 +31,8 @@ class Game
   void initTextures();
   void initButtons();
   void initSounds();
+  void initFont();
+  void updateText();
   void setButtonPosition();
   void initLevel(int level);
   void updateMenus();
@@ -43,22 +46,30 @@ class Game
   void checkEndOfGameConditions();
   void drawPigs();
   void drawButtons();
+  void drawLives(int lives_left);
+  void resetBird();
   void resetGame();
 
   sf::RenderWindow& window;
+
+  sf::Font font;
+  sf::Text score_text;
+  sf::Text score_endlevel;
 
   sf::Sprite background_spr;
   sf::Texture background_tex;
   sf::Sprite pause_spr;
   sf::Texture pause_tex;
+  sf::Sprite help_menu_spr;
+  sf::Texture help_menu_tex;
   sf::Texture lvl1_tex;
   sf::Texture lvl2_tex;
   sf::Texture lvl3_tex;
   sf::Texture game_won_tex;
+  sf::Texture game_lost_tex;
 
   sf::Texture sling_full_tex;
   sf::Texture sling_left_tex;
-  sf::Sprite bird_spr;
   sf::Texture bird_tex;
   sf::Texture pig_tex;
 
@@ -75,6 +86,7 @@ class Game
   };
 
   bool game_paused;
+  bool help_open;
   bool level_set;
 
   GameState game_state;
@@ -82,6 +94,8 @@ class Game
   Options options = Options(window);
   LevelManager level_manager;
   Pig* pigs = nullptr;
+  Birds bird;
+  Birds* lives = nullptr;
 
   PlayButton play_button;
   HelpButton help_button;
@@ -94,14 +108,6 @@ class Game
   const float MAX_DIST = 120.0;
   int pigs_left;
   float elapsed_time = 0;
-
-  bool grabbed = false;
-  bool launched = false;
-  Vector2 bird_vector = {0,0};
-  Vector2 bird_start = {0,0};
-  float speed = 0.0;
-
-
 
 };
 

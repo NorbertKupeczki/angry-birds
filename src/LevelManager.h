@@ -20,9 +20,13 @@ class LevelManager
 
   void createObstacles(int level, sf::RenderWindow& window);
   void deleteObstacles();
-  bool collisionCheck(sf::Sprite& bird);
-  bool checkObstacles(Obstacles* obstacles, sf::Sprite& bird, int array_size);
+  bool collisionCheck(sf::Sprite& bird, bool destruction);
+  bool checkObstacles(Obstacles* obstacles, sf::Sprite& bird,
+                      int array_size, bool destruction);
   void renderObstacles(sf::RenderWindow& window);
+
+  sf::Sprite* getBoulder();
+  void moveBoulder(float dt);
 
  private:
   sf::Vector2f getLvl1PigCoords(int pig_index, sf::RenderWindow& window);
@@ -35,6 +39,8 @@ class LevelManager
   StoneObstacle* stone_obstacle = nullptr;
   WoodObstacle* wood_obstacle = nullptr;
 
+  Boulder boulder;
+
   int number_of_metals = 0;
   int number_of_stones = 0;
   int number_of_woods = 0;
@@ -42,6 +48,7 @@ class LevelManager
   sf::Texture metal_tex;
   sf::Texture wood_tex;
   sf::Texture stone_tex;
+  sf::Texture boulder_tex;
 };
 
 #endif // ANGRYBIRDS_LEVELMANAGER_H
