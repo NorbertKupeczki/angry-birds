@@ -36,8 +36,10 @@ class Boulder : public Obstacles
  public:
   Boulder();
   void MoveBoulder(float dt);
+  void resetSpeed();
 
  private:
+  const float INIT_SPEED = 30.0;
   float speed;
 };
 

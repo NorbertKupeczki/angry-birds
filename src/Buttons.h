@@ -29,26 +29,6 @@ class Buttons
   bool active;
 };
 
-class PlayButton : public Buttons
-{
-};
-
-class HelpButton : public Buttons
-{
-};
-
-class OptionsButton : public Buttons
-{
-};
-
-class MenuButton : public Buttons
-{
-};
-
-class QuitButton : public Buttons
-{
-};
-
 class OptionsMenuButtons : public Buttons
 {
  public:
@@ -56,28 +36,8 @@ class OptionsMenuButtons : public Buttons
   void switchTexture();
   bool isSelected();
 
- private:
+ protected:
   bool selected = false;
-};
-
-class Lvl1Button : public OptionsMenuButtons
-{
-};
-
-class Lvl2Button : public OptionsMenuButtons
-{
-};
-
-class Lvl3Button : public OptionsMenuButtons
-{
-};
-
-class AcceptButton : public OptionsMenuButtons
-{
-};
-
-class MusicButton : public OptionsMenuButtons
-{
 };
 
 class VolumeSlider : public OptionsMenuButtons

@@ -2,6 +2,7 @@
 
 Options::Options(sf::RenderWindow& window)
 {
+  music_volume = MAX_VOLUME;
   initMusic();
   background_music->play();
 
@@ -77,7 +78,7 @@ void Options::moveSlider(sf::RenderWindow& window)
 {
   float d = volume_slider.MAX_POS - volume_slider.MIN_POS;
   volume_slider.moveSlider(window);
-  music_volume = 50 * (volume_slider.getSprite()->getPosition().x - volume_slider.MIN_POS) / d;
+  music_volume = MAX_VOLUME * (volume_slider.getSprite()->getPosition().x - volume_slider.MIN_POS) / d;
   background_music->setVolume(music_volume);
 }
 

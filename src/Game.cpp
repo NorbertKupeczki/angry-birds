@@ -375,7 +375,7 @@ void Game::updateMenus()
       game_state == GAME_WON ||
       game_state == GAME_LOST)
   {
-    if (!options.isOptionsActive())
+    if (!options.isOptionsActive() && !help_open)
     {
       checkButtons(sf::Mouse::getPosition(window));
     }
@@ -405,6 +405,10 @@ void Game::updateInGame(float dt)
     if (!level_manager.collisionCheck(*level_manager.getBoulder(), false))
     {
       level_manager.moveBoulder(dt);
+    }
+    else
+    {
+      level_manager.resetBoulderSpeed();
     }
 
     if (

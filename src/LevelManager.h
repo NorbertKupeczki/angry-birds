@@ -27,6 +27,7 @@ class LevelManager
 
   sf::Sprite* getBoulder();
   void moveBoulder(float dt);
+  void resetBoulderSpeed();
 
  private:
   sf::Vector2f getLvl1PigCoords(int pig_index, sf::RenderWindow& window);

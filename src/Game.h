@@ -97,11 +97,11 @@ class Game
   Birds bird;
   Birds* lives = nullptr;
 
-  PlayButton play_button;
-  HelpButton help_button;
-  OptionsButton options_button;
-  MenuButton menu_button;
-  QuitButton quit_button;
+  Buttons play_button;
+  Buttons help_button;
+  Buttons options_button;
+  Buttons menu_button;
+  Buttons quit_button;
 
   const int NUMBER_OF_PIGS = 3;
   const float GRAVITY = 0.0011;

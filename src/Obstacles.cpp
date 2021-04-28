@@ -22,14 +22,19 @@ MetalObstacle::MetalObstacle()
 
 Boulder::Boulder()
 {
-  speed = 1.0;
+  speed = INIT_SPEED;
 }
 
 void Boulder::MoveBoulder(float dt)
 {
   if(visible)
   {
-    speed *= 1.2;
+    speed *= 1.1;
     sprite->move(0.0,speed * dt);
   }
+}
+
+void Boulder::resetSpeed()
+{
+  speed = INIT_SPEED;
 }

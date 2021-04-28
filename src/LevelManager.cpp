@@ -117,6 +117,68 @@ void LevelManager::createObstacles(int level, sf::RenderWindow& window)
   }
   else if (level == 3)
   {
+    number_of_metals = 6;
+    number_of_stones = 5;
+    number_of_woods = 2;
+
+    boulder.setVisibility(true);
+    boulder.getSprite()->setPosition(1110.0,15.0);
+
+    metal_obstacle = new MetalObstacle[number_of_metals];
+    stone_obstacle = new StoneObstacle[number_of_stones];
+    wood_obstacle = new WoodObstacle[number_of_woods];
+
+    for (int i = 0; i < number_of_metals; ++i)
+    {
+      metal_obstacle[i].setTexture(metal_tex);
+      metal_obstacle[i].getSprite()->setOrigin(metal_tex.getSize().x / 2,
+                                               metal_tex.getSize().y /2);
+
+      metal_obstacle[0].getSprite()->setPosition(
+        window.getSize().x * 0.88,
+        window.getSize().y * 0.63);
+      metal_obstacle[1].getSprite()->setPosition(
+        window.getSize().x * 0.823,
+        window.getSize().y * 0.58);
+      metal_obstacle[1].getSprite()->setRotation(90.0);
+      metal_obstacle[2].getSprite()->setPosition(
+        window.getSize().x * 0.823,
+        window.getSize().y * 0.38);
+      metal_obstacle[2].getSprite()->setRotation(90.0);
+      metal_obstacle[3].getSprite()->setPosition(
+        window.getSize().x * 0.78,
+        window.getSize().y * 0.33);
+      metal_obstacle[3].getSprite()->setScale(0.65,1.0);
+      metal_obstacle[4].getSprite()->setPosition(
+        window.getSize().x * 0.675,
+        window.getSize().y * 0.145);
+      metal_obstacle[4].getSprite()->setScale(0.6,1.0);
+      metal_obstacle[5].getSprite()->setPosition(
+        window.getSize().x * 0.716,
+        window.getSize().y * 0.086);
+      metal_obstacle[5].getSprite()->setScale(1.1,1.0);
+      metal_obstacle[5].getSprite()->setRotation(90.0);
+    }
+
+    for (int i = 0; i < number_of_stones; ++i)
+    {
+      stone_obstacle[i].setTexture(stone_tex);
+      stone_obstacle[i].getSprite()->setOrigin(stone_tex.getSize().x / 2,
+                                               stone_tex.getSize().y /2);
+      stone_obstacle[i].getSprite()->setPosition(1200.0,55 + i * stone_tex.getSize().x);
+      stone_obstacle[i].getSprite()->setRotation(90.0);
+    }
+
+    for (int i = 0; i < number_of_woods; ++i)
+    {
+      wood_obstacle[i].setTexture(wood_tex);
+      wood_obstacle[i].getSprite()->setOrigin(wood_tex.getSize().x / 2,
+                                              wood_tex.getSize().y /2);
+      wood_obstacle[i].getSprite()->setScale(1.55,1.0);
+      wood_obstacle[i].getSprite()->setPosition(
+        window.getSize().x * 0.857,
+        window.getSize().y * 0.15 + i * 237.0);
+    }
 
   }
 }
@@ -140,6 +202,7 @@ void LevelManager::deleteObstacles()
   }
 
   boulder.setVisibility(false);
+  boulder.resetSpeed();
 
   number_of_metals = 0;
   number_of_stones = 0;
@@ -193,7 +256,7 @@ void LevelManager::renderObstacles(sf::RenderWindow& window)
   {
     for (int i = 0; i < number_of_metals; ++i)
     {
-      if (metal_obstacle->isVisible())
+      if (metal_obstacle[i].isVisible())
       {
         window.draw(*metal_obstacle[i].getSprite());
       }
@@ -203,7 +266,7 @@ void LevelManager::renderObstacles(sf::RenderWindow& window)
   {
     for (int i = 0; i < number_of_stones; ++i)
     {
-      if (stone_obstacle->isVisible())
+      if (stone_obstacle[i].isVisible())
       {
         window.draw(*stone_obstacle[i].getSprite());
       }
@@ -213,7 +276,7 @@ void LevelManager::renderObstacles(sf::RenderWindow& window)
   {
     for (int i = 0; i < number_of_woods; ++i)
     {
-      if (wood_obstacle->isVisible())
+      if (wood_obstacle[i].isVisible())
       {
         window.draw(*wood_obstacle[i].getSprite());
       }
@@ -221,7 +284,7 @@ void LevelManager::renderObstacles(sf::RenderWindow& window)
   }
 }
 
-sf::Sprite * LevelManager::getBoulder()
+sf::Sprite* LevelManager::getBoulder()
 {
     return boulder.getSprite();
 }
@@ -229,6 +292,11 @@ sf::Sprite * LevelManager::getBoulder()
 void LevelManager::moveBoulder(float dt)
 {
   boulder.MoveBoulder(dt);
+}
+
+void LevelManager::resetBoulderSpeed()
+{
+  boulder.resetSpeed();
 }
 
 // ---------------------------------- PRIVATE ----------------------------------

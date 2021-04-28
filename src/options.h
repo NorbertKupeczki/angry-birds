@@ -9,7 +9,6 @@ class Options
 {
  public:
   Options(sf::RenderWindow& window);
-  Options();
   ~Options();
 
   void initButtons(sf::SoundBuffer& hover_bfr,
@@ -32,15 +31,16 @@ class Options
   sf::Sprite options_bg_spr;
   sf::Texture options_bg_tex;
   sf::Music* background_music = nullptr;
-  float music_volume = 50;
+  const float MAX_VOLUME = 5.0;
+  float music_volume;
   bool music_on = true;
   bool options_active;
 
-  AcceptButton accept_button;
-  MusicButton music_button;
-  Lvl1Button lvl1_button;
-  Lvl2Button lvl2_button;
-  Lvl3Button lvl3_button;
+  OptionsMenuButtons accept_button;
+  OptionsMenuButtons music_button;
+  OptionsMenuButtons lvl1_button;
+  OptionsMenuButtons lvl2_button;
+  OptionsMenuButtons lvl3_button;
   VolumeSlider volume_slider;
 
   enum LevelSelected {
